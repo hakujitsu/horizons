@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup as soup, NavigableString
 import requests
-we_url="https://www.washingtonexaminer.com/news/campaigns/desantis-indicates-2024-presidential-run-privately-report"
 
+newsweek_url="https://www.newsweek.com/republican-divide-widens-over-debt-limit-senate-opts-bipartisanship-1786715"
 header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
-html=requests.get(we_url,headers=header)
+html=requests.get(newsweek_url,headers=header)
 
 bsobj = soup(html.content,'lxml')
 
@@ -27,7 +27,7 @@ def parseParagraph(p):
 
 def parseTitle():
     # Get title
-    header = bsobj.findAll("h1", {"class" : "ArticlePage-headline"})
+    header = bsobj.findAll("h1", {"class" : "title"})
     if (len(header) < 1):
         return
     assert(len(header) == 1)
@@ -35,7 +35,7 @@ def parseTitle():
 
 def parseBody():
      # Get body text
-    bodyContent = bsobj.find_all("div", {"class" : "RichTextArticleBody-body"})
+    bodyContent = bsobj.find_all("div", {"class" : "article-body"})
     if (len(bodyContent) == 0):
         return
     assert(len(bodyContent) == 1)
@@ -48,10 +48,6 @@ def parseBody():
 
     content = []
     for para in bodyParagraphs:
-        if (para.contents[0].name == "b"):
-            first = para.contents[0]
-            if (len(first.contents) > 0 and first.contents[0].name == "a"):
-                continue
         content.append(parseParagraph(para).strip())
     content = " ".join(content)
     return content
