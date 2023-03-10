@@ -1,10 +1,8 @@
 from bs4 import BeautifulSoup as soup, NavigableString
 import requests
-
-cnn_url="https://edition.cnn.com/2023/03/06/politics/tucker-carlson-january-6-footage"
+cnbc_url="https://www.cnbc.com/2023/03/09/west-virginia-to-ask-supreme-court-to-allow-transgender-girls-sports-ban.html"
 header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
-html=requests.get(cnn_url,headers=header)
-
+html=requests.get(cnbc_url,headers=header)
 bsobj = soup(html.content,'lxml')
 
 def parseNestedTag(t):
@@ -16,18 +14,21 @@ def parseNestedTag(t):
             tagText += parseNestedTag(txt)
     return tagText
 
-def parseParagraph(p):
-    paragraphText = ""
-    for txt in p.contents:
+def parseGroup(g):
+    p = g.find_all("p", recursive=False)
+    paragraphs = []
+    for txt in p:
+        paragraphText = ""
         if (isinstance(txt, NavigableString)):
             paragraphText += txt
         else:
             paragraphText += parseNestedTag(txt)
-    return paragraphText
+        paragraphs.append(paragraphText)
+    return paragraphs
 
 def parseTitle():
     # Get title
-    header = bsobj.findAll("h1", {"data-editable" : "headlineText"})
+    header = bsobj.findAll("h1", {"class" : "ArticleHeader-headline"})
     if (len(header) < 1):
         return
     assert(len(header) == 1)
@@ -35,22 +36,25 @@ def parseTitle():
 
 def parseBody():
      # Get body text
-    bodyContent = bsobj.find_all("div", {"class" : "article__content"})
+    bodyContent = bsobj.find_all("div", {"class" : "ArticleBody-articleBody"})
     if (len(bodyContent) == 0):
         return
     assert(len(bodyContent) == 1)
     bodyContent = bodyContent[0]
 
-    bodyParagraphs = bodyContent.find_all("p", {"data-component-name" : "paragraph"})
-    if (len(bodyParagraphs) == 0):
+    bodyGroups = bodyContent.find_all("div", {"class" : "group"})
+    if (len(bodyGroups) == 0):
         return
-    assert(len(bodyParagraphs) > 0)
+    assert(len(bodyGroups) > 0)
 
     content = []
-    for para in bodyParagraphs:
-        content.append(parseParagraph(para).strip())
+    for group in bodyGroups:
+        content = content + parseGroup(group)
+
     content = " ".join(content)
     return content
+
+
 
 def parseArticle():
     header = parseTitle()

@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup as soup, NavigableString
 import requests
-from datetime import date
-today = date.today()
-d = today.strftime("%m-%d-%y")
+
 reuters_url="https://www.reuters.com/world/studying-ukraine-war-chinas-military-minds-fret-over-us-missiles-starlink-2023-03-08/"
-html = requests.get(reuters_url)
+header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
+html=requests.get(reuters_url,headers=header)
+
 bsobj = soup(html.content,'lxml')
 
 def parseNestedTag(t):

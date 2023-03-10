@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup as soup, NavigableString
 import requests
+we_url="https://www.washingtonexaminer.com/news/campaigns/desantis-indicates-2024-presidential-run-privately-report"
 
-cnn_url="https://edition.cnn.com/2023/03/06/politics/tucker-carlson-january-6-footage"
 header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
-html=requests.get(cnn_url,headers=header)
+html=requests.get(we_url,headers=header)
 
 bsobj = soup(html.content,'lxml')
 
@@ -27,7 +27,7 @@ def parseParagraph(p):
 
 def parseTitle():
     # Get title
-    header = bsobj.findAll("h1", {"data-editable" : "headlineText"})
+    header = bsobj.findAll("h1", {"class" : "ArticlePage-headline"})
     if (len(header) < 1):
         return
     assert(len(header) == 1)
@@ -35,19 +35,23 @@ def parseTitle():
 
 def parseBody():
      # Get body text
-    bodyContent = bsobj.find_all("div", {"class" : "article__content"})
+    bodyContent = bsobj.find_all("div", {"class" : "RichTextArticleBody-body"})
     if (len(bodyContent) == 0):
         return
     assert(len(bodyContent) == 1)
     bodyContent = bodyContent[0]
 
-    bodyParagraphs = bodyContent.find_all("p", {"data-component-name" : "paragraph"})
+    bodyParagraphs = bodyContent.find_all("p", recursive=False)
     if (len(bodyParagraphs) == 0):
         return
     assert(len(bodyParagraphs) > 0)
 
     content = []
     for para in bodyParagraphs:
+        if (len(para.contents) == 1):
+            c = para.contents[0]
+            if (c.name == "b" and len(c.contents) == 1 and c.contents[0].name == "a"):
+                continue
         content.append(parseParagraph(para).strip())
     content = " ".join(content)
     return content
