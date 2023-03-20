@@ -1,12 +1,6 @@
 from bs4 import BeautifulSoup as soup, NavigableString
 import requests
 
-guardian_url="https://www.theguardian.com/us-news/2023/mar/09/donald-trump-stormy-daniels-criminal-charges"
-header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
-html=requests.get(guardian_url,headers=header)
-
-bsobj = soup(html.content,'lxml')
-
 def parseNestedTag(t):
     tagText = ""
     for txt in t.contents:
@@ -25,7 +19,7 @@ def parseParagraph(p):
             paragraphText += parseNestedTag(txt)
     return paragraphText
 
-def parseTitle():
+def parseTitle(bsobj):
     # Get title
     header = bsobj.findAll("h1")
     if (len(header) < 1):
@@ -33,7 +27,7 @@ def parseTitle():
     assert(len(header) == 1)
     return parseNestedTag(header[0]).strip()
 
-def parseBody():
+def parseBody(bsobj):
      # Get body text
     bodyContent = bsobj.find_all("div", {"id" : "maincontent"})
     if (len(bodyContent) == 0):
@@ -52,17 +46,17 @@ def parseBody():
     content = " ".join(content)
     return content
 
-def parseArticle():
-    header = parseTitle()
+def parseArticle(guardian_url):
+    header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
+    html=requests.get(guardian_url,headers=header)
+
+    bsobj = soup(html.content,'lxml')
+    header = parseTitle(bsobj)
     if (header == None):
         return
 
-    content = parseBody()
+    content = parseBody(bsobj)
     if (content == None):
         return
 
-    print(header)
-    print()
-    print(content)
-
-parseArticle()
+    return header, content

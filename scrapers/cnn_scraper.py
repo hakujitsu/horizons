@@ -1,12 +1,6 @@
 from bs4 import BeautifulSoup as soup, NavigableString
 import requests
 
-cnn_url="https://edition.cnn.com/2023/03/06/politics/tucker-carlson-january-6-footage"
-header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
-html=requests.get(cnn_url,headers=header)
-
-bsobj = soup(html.content,'lxml')
-
 def parseNestedTag(t):
     tagText = ""
     for txt in t.contents:
@@ -25,7 +19,7 @@ def parseParagraph(p):
             paragraphText += parseNestedTag(txt)
     return paragraphText
 
-def parseTitle():
+def parseTitle(bsobj):
     # Get title
     header = bsobj.findAll("h1", {"data-editable" : "headlineText"})
     if (len(header) < 1):
@@ -33,7 +27,7 @@ def parseTitle():
     assert(len(header) == 1)
     return parseNestedTag(header[0]).strip()
 
-def parseBody():
+def parseBody(bsobj):
      # Get body text
     bodyContent = bsobj.find_all("div", {"class" : "article__content"})
     if (len(bodyContent) == 0):
@@ -52,17 +46,17 @@ def parseBody():
     content = " ".join(content)
     return content
 
-def parseArticle():
-    header = parseTitle()
+def parseArticle(cnn_url):
+    header={'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36'}
+    html=requests.get(cnn_url, headers=header)
+    bsobj = soup(html.content,'lxml')
+
+    header = parseTitle(bsobj)
     if (header == None):
-        return
+        return None
 
-    content = parseBody()
+    content = parseBody(bsobj)
     if (content == None):
-        return
+        return None
 
-    print(header)
-    print()
-    print(content)
-
-parseArticle()
+    return header, content
