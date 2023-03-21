@@ -1,1 +1,11 @@
 devNotes.md
+horizons-backend/venv/*
+
+.DS_Store
+__pycache__/
+horizons-backend/.DS_Store
+horizons-backend/__pycache__/
+horizons-backend/scrapers/.DS_Store
+horizons-backend/scrapers/__pycache__/
+horizons-backend/utils/__pycache__/
+scrapers/__pycache__/
