@@ -1,13 +1,14 @@
-import requests
 import urllib.parse
-from utils.scraper_utils import scrapeArticle
+from utils.scraper_utils import scrapeArticleWithUrl, scrapeArticleWithHtml
 from utils.text_utils import buildQuery
-from utils.constant_utils import BASE_URL, SUPPORTED_NEWS_SOURCES
+from utils.constant_utils import BASE_URL, SUPPORTED_NEWS_SOURCES, REQUEST_HEADER
 import feedparser
 import ssl
 import base64
 import functools
 import re
+import aiohttp
+import asyncio
 
 ssl._create_default_https_context = ssl._create_unverified_context
 cookies = {'CONSENT': 'YES+cb.20210720-07-p0.en+FX+410'}
@@ -28,11 +29,12 @@ class NewsEntry:
     self.source = source
 
 def getSimilarArticles(url):
-    source, title, article = scrapeArticle(url)
+    source, title, article = scrapeArticleWithUrl(url)
     if (source == None or title == None or article == None):
       return []
     query = buildQuery(title, article)
-    scrapeGNews(query, source)
+    articles = scrapeGNews(query, source)
+    # TODO: perform sentiment analysis on articles
 
 
 def scrapeGNews(query, source):
@@ -45,39 +47,39 @@ def scrapeGNews(query, source):
     return entries
 
 def parseGNewsRSS(feed):
-    entries = list(map(parseGNewsEntry, feed['entries']))
+    entries = list(filter(lambda item: item is not None, map(parseGNewsEntry, feed['entries'])))
     entries = parseNewsEntries(entries)
     return entries
 
 def parseGNewsEntry(entry):
     title = entry['title']
-    link = entry['link']
     date_published = entry['published']
     source = entry['source']['title']
-    return GNewsEntry(title, link, date_published, source)
+    if (source.strip() in SUPPORTED_NEWS_SOURCES):
+        url = decode_google_news_url(entry['link'])
+        return GNewsEntry(title, url, date_published, source)
+    else:
+       return None
 
 def parseNewsEntries(entries):
-    news_entries = list()
+    newsEntries = list(filter(lambda x: x!= None, asyncio.run(asyncParseNewsEntries(entries))))
+    return newsEntries
 
-    for e in entries:
-       news_entry = parseNewsEntry(e)
-       if (news_entry != None):
-          news_entries.append(news_entry)
+async def asyncParseNewsEntries(entries):
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
+        tasks = [
+        parseEntry(e, session)
+            for e in entries
+        ]
+        return await asyncio.gather(*tasks)
 
-    for e in news_entries:
-       print(e.title)
-       print(e.link)
-
-    return news_entries
-
-# TODO: check why certain articles aren't being parsed
-def parseNewsEntry(entry):
-    if (entry.source.strip() in SUPPORTED_NEWS_SOURCES):
-        url = decode_google_news_url(entry.link)
-        source, header, article = scrapeArticle(url)
+async def parseEntry(e, session):
+    async with session.get(e.link, headers=REQUEST_HEADER) as response:
+        html = await response.text()
+        source, header, article = scrapeArticleWithHtml(e.link, html)
         if (article != None):
-          return NewsEntry(header, article, url, entry.date_published, source)
-    return None
+            return NewsEntry(header, article, e.link, e.date_published, source)
+        return None
 
 # TODO: refactor google news URL parsing to utils
 _ENCODED_URL_PREFIX = "https://news.google.com/rss/articles/"

@@ -41,9 +41,8 @@ def parseBody(bsobj):
     content = "\n".join(content)
     return content
 
-def parseArticle(bbc_url):
-    html=requests.get(bbc_url,headers=REQUEST_HEADER)
-    bsobj = soup(html.content,'lxml')
+def parseArticle(html):
+    bsobj = soup(html,'lxml')
     header = parseTitle(bsobj)
     if (header == None):
         return None, None

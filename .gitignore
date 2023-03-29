@@ -1,5 +1,7 @@
 devNotes.md
 horizons-backend/venv/*
+env/
+horizons-backend/env
 
 .DS_Store
 __pycache__/
