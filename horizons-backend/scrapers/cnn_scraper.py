@@ -47,10 +47,8 @@ def parseBody(bsobj):
     content = " ".join(content)
     return content
 
-def parseArticle(cnn_url):
-    html=requests.get(cnn_url, headers=REQUEST_HEADER)
-    bsobj = soup(html.content,'lxml')
-
+def parseArticle(html):
+    bsobj = soup(html,'lxml')
     header = parseTitle(bsobj)
     if (header == None):
         return None, None

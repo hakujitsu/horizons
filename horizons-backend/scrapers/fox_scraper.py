@@ -50,9 +50,8 @@ def parseBody(bsobj):
     return content
 
 
-def parseArticle(fox_url):
-    html=requests.get(fox_url,headers=REQUEST_HEADER)
-    bsobj = soup(html.content,'lxml')
+def parseArticle(html):
+    bsobj = soup(html,'lxml')
     header = parseTitle(bsobj)
     if (header == None):
         return None, None

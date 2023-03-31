@@ -5,6 +5,11 @@
 python3 -m venv env
 ```
 
+The environment can be activated with
+```
+source env/bin/activate
+```
+
 You can stop running the virtual env with
 ```
 deactivate
