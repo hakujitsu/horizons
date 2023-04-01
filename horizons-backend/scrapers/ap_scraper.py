@@ -29,7 +29,7 @@ def parseTitle(bsobj):
     return parseNestedTag(header[0]).strip()
 
 def parseBody(bsobj):
-     # Get body text
+    # Get body text
     bodyContent = bsobj.find_all("div", {"class" : "Article"})
     if (len(bodyContent) == 0):
         return
