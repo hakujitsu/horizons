@@ -4,15 +4,12 @@
 }
 
 #container {
-  height: 100vh;
-  width: 100vw;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  margin-top: 64px;
 }
 
-#onboarding-form>div {
+#onboarding-form > div {
   padding-top: 8px;
   padding-bottom: 8px;
 }
