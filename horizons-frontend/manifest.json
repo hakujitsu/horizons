@@ -12,7 +12,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["tabs"],
+  "permissions": ["storage", "tabs"],
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
@@ -22,6 +22,7 @@
     }
   ],
   "action":{
+    "default_icon": "images/icon-48.ico",
     "default_popup": "index.html",
     "default_title": "Horizon Recommendations"
   }
