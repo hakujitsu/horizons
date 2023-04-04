@@ -26,6 +26,8 @@ def scrape():
     assert request.path == '/scrape'
     assert request.method == 'POST'
     data = request.json
-    print(data.get("url"))
-    getSimilarArticles(data.get("url"))
+    # user_id = data.get("user_id")
+    # updateUserHistory(user_id, url)
+    url = data.get("url")
+    getSimilarArticles(url)
     return "<p>Hello, World!</p>"
