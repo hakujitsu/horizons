@@ -1,0 +1,25 @@
+* {
+  font-size: 1em;
+}
+
+#container {
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border: solid;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.source {
+  
+}

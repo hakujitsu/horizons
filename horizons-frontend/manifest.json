@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Horizons",
+  "description": "Delve into new topics and expand your intellectual horizons through suggested articles that challenge your usual scope of reading",
+  "version": "1.0",
+  "icons": {
+    "16": "images/icon-16.ico",
+    "32": "images/icon-32.ico",
+    "48": "images/icon-48.ico",
+    "128": "images/icon-128.ico"
+  },
+  "host_permissions": ["http://localhost:5000/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "tabs"],
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": ["https://www.theguardian.com/*"]
+    }
+  ],
+  "action": {
+    "default_icon": "images/icon-48.ico",
+    "default_popup": "index.html",
+    "default_title": "Horizon Recommendations"
+  }
+}

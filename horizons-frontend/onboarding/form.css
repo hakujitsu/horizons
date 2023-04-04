@@ -1,0 +1,31 @@
+*:not(h1):not(h2):not(h3) {
+  font-size: 1em;
+}
+
+#container {
+  display: flex;
+  justify-content: center;
+  margin-top: 64px;
+}
+
+#onboarding-form > div {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.question-title {
+  margin-bottom: 4px;
+}
+
+input[type=submit] {
+  padding: 5px 15px;
+  background: #ddd;
+  border: 0 none;
+  cursor: pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+
+input[type=submit]:hover {
+  background: #ccc;
+}
