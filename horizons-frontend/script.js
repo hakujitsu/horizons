@@ -30,7 +30,11 @@ function fillInEntries() {
 
     currEntry.querySelector("div.title").innerHTML = currResult.title;
     currEntry.querySelector("div.source").innerHTML = currResult.source;
-    currEntry.querySelector("a.link").href = currResult.url;
+    currEntry.addEventListener('click', function(e) {
+      chrome.tabs.create({
+        url: currResult.url
+      });
+    });
   }
 }
 
