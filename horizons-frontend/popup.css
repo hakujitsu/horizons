@@ -4,8 +4,13 @@
 
 #container {
   width: 450px;
+}
+
+#contents {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  display: none;
 }
 
 .entry {
@@ -20,6 +25,6 @@
   font-weight: bold;
 }
 
-.source {
-  
+#loading {
+  display: none
 }

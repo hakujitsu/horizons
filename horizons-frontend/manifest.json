@@ -9,7 +9,18 @@
     "48": "images/icon-48.ico",
     "128": "images/icon-128.ico"
   },
-  "host_permissions": ["http://localhost:5000/*"],
+  "host_permissions": ["http://localhost:5000/*",
+  "https://apnews.com/article/*",
+  "https://www.bbc.com/news/*",
+  "https://www.cnbc.com/*",
+  "https://edition.cnn.com/*",
+  "https://www.cnn.com/*",
+  "https://www.foxnews.com/*",
+  "https://www.theguardian.com/*",
+  "https://nypost.com/*",
+  "https://www.newsweek.com/*",
+  "https://www.reuters.com/*",
+  "https://www.washingtonexaminer.com/news/*"],
   "background": {
     "service_worker": "background.js"
   },
@@ -17,7 +28,20 @@
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
-      "matches": ["https://www.theguardian.com/*"]
+      "matches": [
+        "https://apnews.com/article/*",
+        "https://www.bbc.com/news/*",
+        "https://www.cnbc.com/*",
+        "http://edition.cnn.com/*",
+        "https://edition.cnn.com/*",
+        "https://www.cnn.com/*",
+        "https://www.foxnews.com/*",
+        "https://www.theguardian.com/*",
+        "https://nypost.com/*",
+        "https://www.newsweek.com/*",
+        "https://www.reuters.com/*",
+        "https://www.washingtonexaminer.com/news/*"
+      ]
     }
   ],
   "action": {
