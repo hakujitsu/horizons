@@ -82,7 +82,7 @@ def ner_similarity_score(first_headline, sec_headline):
     percent_of_significance = min(percent_of_significance, float(num_of_significant_terms)/float(sec_headline_len))
 
     print('Percentage based on named entities: ' + str(percent_of_significance))
-    #return percent_of_significance #TODO: Is this sensible?
+    return percent_of_significance #TODO: Is this sensible?
 
 '''
 Computing the similarity between headlines by unigrams and calculating percentage of overlap in terms of unigrams.
@@ -156,7 +156,17 @@ def bigram_similarity(first_headline, sec_headline):
 
 def headline_similarity_score(first_headline, sec_headline):
     #TODO: Need to figure out the weights to be attached to each of the scoring systems above. Can consider the time of release of the articles as one of the scoring system.
-    pass
+    final_score = ner_similarity_score(first_headline, sec_headline)
+
+    if (final_score == 0):
+        final_score = bigram_similarity(first_headline, sec_headline)
+
+        if (final_score == 0):
+            return unigram_similarity(first_headline, sec_headline)
+        else:
+            return final_score
+    else:
+        return final_score
 '''
 Calculating unexpectedness score.
 '''
