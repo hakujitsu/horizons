@@ -1,4 +1,3 @@
-// TODO: fix http / https bug
 const SUPPORTED_SOURCES = [
   "apnews.com/article/",
   "www.bbc.com/news/",
