@@ -1,7 +1,7 @@
 const form = document.getElementById("onboarding-form");
 
 async function sendData() {
-  await chrome.storage.sync.clear();
+  await chrome.storage.local.clear();
 
   // Bind the FormData object and the form element
   const formData = new FormData(form);

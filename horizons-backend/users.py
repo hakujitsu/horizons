@@ -1,17 +1,13 @@
 USERS = dict()
 
 class User:
-    def __init__(self, age_range, location, bias):
-        self._age_range = age_range
+    def __init__(self, email, location, bias):
+        self._email = email
         self._location = location
         self._political_bias = (bias, 0.0, 0)
         self._history = list()
         self._opinion = dict()
 
-    def get_age_range(self):
-        return self._age_range
-
-    # TODO: check locale is either USA or UK
     def get_locale(self):
         return self._location
 
@@ -37,14 +33,14 @@ class User:
         self._opinion = value
 
     def printDetails(self):
-        print(self._age_range)
+        print(self._email)
         print(self._location)
         print(self._political_bias)
         print(self._history)
         print(self._opinion)
 
 
-def addUserToDict(age, location, politics):
+def addUserToDict(email, location, politics):
     bias = 0
     if (politics == "left"):
        bias = -4
@@ -56,7 +52,7 @@ def addUserToDict(age, location, politics):
        bias = 4
 
     currLen = len(USERS)
-    user = User(age, location, bias)
+    user = User(email, location, bias)
     USERS[currLen] = user
     return currLen
 

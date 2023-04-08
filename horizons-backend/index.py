@@ -20,11 +20,10 @@ def sign_up():
     assert request.path == '/signup'
     assert request.method == 'POST'
     data = request.json
-    # TODO: get email from signup
-    age = data.get("age")
+    email = data.get("email")
     location = data.get("location")
     politics = data.get("politics")
-    id = addUserToDict(age, location, politics)
+    id = addUserToDict(email, location, politics)
     return jsonify(
         user_id=id
     )
@@ -35,16 +34,17 @@ def scrape():
     assert request.path == '/scrape'
     assert request.method == 'POST'
     data = request.json
-    user_id = data.get("user_id")
+    user_id = data.get("user_id")["user_id"]
     url = data.get("url")
     print(url)
+    print(user_id)
 
     # TODO: remove later
-    user_id = 0
-    addMockUserToDict()
+    # user_id = 0
+    # addMockUserToDict()
+
     updateUserHistory(user_id, url)
     user = getUserFromDict(user_id)
-
 
     original_article, articles = getSimilarArticles(url)
 
@@ -57,7 +57,7 @@ def scrape():
     print(original_article.title)
     print(len(articles))
 
-    # TODO: getting headline similarity score doesn't seem to work, will try other means
+    # TODO: consider other methods of shortlisting
     score_list = map(lambda a: headline_similarity_score(original_article.title, a.title), articles)
     print(list(score_list))
     # articles = articles[0:10]
@@ -66,8 +66,5 @@ def scrape():
     print(recommendations)
 
     recs = list(map(lambda r: r.export(), recommendations))
-
-    print(recs)
-
 
     return jsonify(recommendations = recs, id = url)
