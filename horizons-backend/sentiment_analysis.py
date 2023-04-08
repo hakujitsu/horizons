@@ -23,8 +23,8 @@ MEDIA_BIAS_RATINGS = {
 # TODO: set frontend locale to America and Europe
 # Since all of the sources are non-Asian, no specific sources are recommended for the asian region.
 LOCALE_BASED_RECS = {
-    'america': [NewsSource.BBC, NewsSource.GUARDIAN, NewsSource.REUTERS],
-    'europe': [NewsSource.AP_NEWS, NewsSource.CNBC, NewsSource.CNN, NewsSource.FOX, 
+    'USA': [NewsSource.BBC, NewsSource.GUARDIAN, NewsSource.REUTERS],
+    'UK': [NewsSource.AP_NEWS, NewsSource.CNBC, NewsSource.CNN, NewsSource.FOX, 
                NewsSource.NYP, NewsSource.NEWSWEEK, NewsSource.PBS, NewsSource.WASHINGTON],
 }
 
@@ -72,17 +72,17 @@ def overall_diff_in_opinion(user_opinion, article_responses):
         article_entity_type = language_v1.Entity.Type(article_entity.type_).name
         curr_entity_key = (article_entity_name, article_entity_type)
 
-        if (article_entity_type in relevant_entities and article_entity in user_opinion[curr_entity_key]):
+        if (article_entity_type in relevant_entities and curr_entity_key in user_opinion and article_entity in user_opinion[curr_entity_key]):
             curr_sentiment = user_opinion[curr_entity_key][0]
 
             num_of_read_articles = user_opinion[curr_entity_key][1]
-            
+
             new_sentiment = ((curr_sentiment * num_of_read_articles) + (article_entity.salience * article_entity.sentiment.score)) / float(num_of_read_articles + 1)
             accumulated_degree_of_change += abs(new_sentiment - curr_sentiment)
 
         else:
             accumulated_degree_of_change += abs(article_entity.salience * article_entity.sentiment.score)
-    
+
     return accumulated_degree_of_change # TODO: Have to normalise across all shortlisted articles
 
 """
@@ -114,3 +114,4 @@ def diff_in_locale(user_locale, curr_source):
 
     if (curr_source in recommended_sources):
         return 1 # Returns an arbitrary value (not a very high score as this is not a very significant factor)
+    return 0.5 # TODO: check if this is an appropriate factor

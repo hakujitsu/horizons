@@ -11,6 +11,10 @@ class User:
     def get_age_range(self):
         return self._age_range
 
+    # TODO: check locale is either USA or UK
+    def get_locale(self):
+        return self._location
+
     def get_history(self):
         return self._history
 

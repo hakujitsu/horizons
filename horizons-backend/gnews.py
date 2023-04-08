@@ -14,19 +14,27 @@ ssl._create_default_https_context = ssl._create_unverified_context
 cookies = {'CONSENT': 'YES+cb.20210720-07-p0.en+FX+410'}
 
 class GNewsEntry:
-  def __init__(self, title, link, date_published, source):
-    self.title = title
-    self.link = link
-    self.date_published = date_published
-    self.source = source
+    def __init__(self, title, link, date_published, source):
+        self.title = title
+        self.link = link
+        self.date_published = date_published
+        self.source = source
 
 class NewsEntry:
-  def __init__(self, title, article, link, date_published, source):
-    self.title = title
-    self.article = article
-    self.link = link
-    self.date_published = date_published
-    self.source = source
+    def __init__(self, title, article, link, date_published, source):
+        self.title = title
+        self.article = article
+        self.link = link
+        self.date_published = date_published
+        self.source = source
+
+    def export(self):
+        return {
+            "title": self.title,
+            "source": self.source.name,
+            "url": self.link,
+        }
+
 
 def getSimilarArticles(url):
     source, title, article = scrapeArticleWithUrl(url)

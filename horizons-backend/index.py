@@ -5,6 +5,8 @@ from flask_cors import CORS, cross_origin
 from users import updateUserHistory, getUserFromDict, addMockUserToDict
 from recommendation import get_final_recommendations
 from updates import read_article
+from shortlist_headlines import headline_similarity_score
+
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -45,7 +47,6 @@ def scrape():
     # print("initial user:")
     # user.printDetails()
 
-
     original_article, articles = getSimilarArticles(url)
 
     read_article(user, original_article)
@@ -53,25 +54,22 @@ def scrape():
     # print("later user:")
     # user.printDetails()
 
-    # recommendations = get_final_recommendations(user, read_article, articles)
-    # print(recommendations)
+    print(original_article)
+    print(original_article.title)
+    print(len(articles))
+
+    # TODO: getting headline similarity score doesn't seem to work, will try other means
+    # score_list = map(lambda a: headline_similarity_score(original_article.title, a.title), articles)
+    # print(list(score_list))
+
+    articles = articles[0:10]
+
+    recommendations = get_final_recommendations(user, original_article, articles)
+    print(recommendations)
+
+    recs = list(map(lambda r: r.export(), recommendations))
+
+    print(recs)
 
 
-    list = [
-            {
-                "title": "Communities face major destruction after large tornadoes tear through the South and Midwest, leaving at least 22 dead",
-                "source": "CNN",
-                "url": "https://edition.cnn.com/2023/04/02/us/us-severe-storm-south-midwest-sunday/index.html"
-            },
-            {
-                "title": "Finland begins voting in knife-edge election",
-                "source": "The Guardian",
-                "url": "https://www.theguardian.com/world/2023/apr/02/finland-begins-voting-in-knife-edge-election"
-            },
-            {
-                "title": "US tornadoes: Death toll grows as extreme storms ravage several states",
-                "source": "BBC",
-                "url": "https://www.bbc.com/news/world-us-canada-65150138"
-            }
-           ]
-    return jsonify(recommendations = list, id = url)
+    return jsonify(recommendations = recs, id = url)
