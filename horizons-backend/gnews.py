@@ -30,10 +30,12 @@ class NewsEntry:
 
 def getSimilarArticles(url):
     source, title, article = scrapeArticleWithUrl(url)
+    original_article = NewsEntry(title, article, url, "", source)
     if (source == None or title == None or article == None):
       return []
     query = buildQuery(title, article)
     articles = scrapeGNews(query, source)
+    return original_article, articles
     # TODO: perform sentiment analysis on articles
 
 

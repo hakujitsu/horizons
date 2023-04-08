@@ -2,11 +2,13 @@ from flask import Flask, request, jsonify
 from gnews import getSimilarArticles
 from users import addUserToDict
 from flask_cors import CORS, cross_origin
+from users import updateUserHistory, getUserFromDict, addMockUserToDict
+from recommendation import get_final_recommendations
+from updates import read_article
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-
 
 @app.route("/")
 def hello_world():
@@ -17,6 +19,7 @@ def sign_up():
     assert request.path == '/signup'
     assert request.method == 'POST'
     data = request.json
+    # TODO: get email from signup
     age = data.get("age")
     location = data.get("location")
     politics = data.get("politics")
@@ -31,12 +34,29 @@ def scrape():
     assert request.path == '/scrape'
     assert request.method == 'POST'
     data = request.json
-    # user_id = data.get("user_id")
-    # updateUserHistory(user_id, url)
+    user_id = data.get("user_id")
     url = data.get("url")
-    print("called scrape")
     print(url)
-    getSimilarArticles(url)
+    user_id = 0
+    addMockUserToDict()
+    updateUserHistory(user_id, url)
+    user = getUserFromDict(user_id)
+
+    # print("initial user:")
+    # user.printDetails()
+
+
+    original_article, articles = getSimilarArticles(url)
+
+    read_article(user, original_article)
+
+    # print("later user:")
+    # user.printDetails()
+
+    # recommendations = get_final_recommendations(user, read_article, articles)
+    # print(recommendations)
+
+
     list = [
             {
                 "title": "Communities face major destruction after large tornadoes tear through the South and Midwest, leaving at least 22 dead",

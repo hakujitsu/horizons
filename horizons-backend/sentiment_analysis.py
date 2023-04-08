@@ -1,29 +1,31 @@
 """
 This file contains the functions required to carry out sentiment analysis on a given article.
 """
-
+from utils.scraper_utils import NewsSource
 from google.cloud import language_v1 # Imports the Google Cloud client library
 from google_senti_analysis import analyze_entity_sentiment
 
 # Based on AllSides Media Bias ratings
 MEDIA_BIAS_RATINGS = {
-    'ap': -1.5,
-    'bbc': -0.8,
-    'cnbc': -0.9,
-    'cnn': -3.8,
-    'fox': 4,
-    'guardian': -2.4,
-    'new_york_post': 1.8,
-    'newsweek': 0.5,
-    'pbs': -1.1,
-    'reuters': 0,
-    'washington_examiner': 2.3,
+    NewsSource.AP_NEWS: -1.5,
+    NewsSource.BBC: -0.8,
+    NewsSource.CNBC: -0.9,
+    NewsSource.CNN: -3.8,
+    NewsSource.FOX: 4,
+    NewsSource.GUARDIAN: -2.4,
+    NewsSource.NYP: 1.8,
+    NewsSource.NEWSWEEK: 0.5,
+    NewsSource.PBS: -1.1,
+    NewsSource.REUTERS: 0,
+    NewsSource.WASHINGTON: 2.3,
 }
 
+# TODO: set frontend locale to America and Europe
 # Since all of the sources are non-Asian, no specific sources are recommended for the asian region.
 LOCALE_BASED_RECS = {
-    'america': ['bbc', 'guardian', 'reuters'],
-    'europe': ['ap', 'cnbc', 'cnn', 'fox', 'new_york_post', 'newsweek', 'pbs', 'washington_examiner'],
+    'america': [NewsSource.BBC, NewsSource.GUARDIAN, NewsSource.REUTERS],
+    'europe': [NewsSource.AP_NEWS, NewsSource.CNBC, NewsSource.CNN, NewsSource.FOX, 
+               NewsSource.NYP, NewsSource.NEWSWEEK, NewsSource.PBS, NewsSource.WASHINGTON],
 }
 
 """
