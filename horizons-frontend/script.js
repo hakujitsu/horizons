@@ -1,35 +1,16 @@
-// const results = [
-//   {
-//     title: "Communities face major destruction after large tornadoes tear through the South and Midwest, leaving at least 22 dead",
-//     source: "CNN",
-//     url: "https://edition.cnn.com/2023/04/02/us/us-severe-storm-south-midwest-sunday/index.html"
-//   },
-//   {
-//     title: "Finland begins voting in knife-edge election",
-//     source: "The Guardian",
-//     url: "https://www.theguardian.com/world/2023/apr/02/finland-begins-voting-in-knife-edge-election"
-//   },
-//   {
-//     title: "US tornadoes: Death toll grows as extreme storms ravage several states",
-//     source: "BBC",
-//     url: "https://www.bbc.com/news/world-us-canada-65150138"
-//   }
-// ]
-
 // TODO: fix http / https bug
 const SUPPORTED_SOURCES = [
-  "https://apnews.com/article/",
-  "https://www.bbc.com/news/",
-  "https://www.cnbc.com/",
-  "http://edition.cnn.com/",
-  "https://edition.cnn.com/",
-  "https://www.cnn.com/",
-  "https://www.foxnews.com/",
-  "https://www.theguardian.com/",
-  "https://nypost.com/",
-  "https://www.newsweek.com/",
-  "https://www.reuters.com/",
-  "https://www.washingtonexaminer.com/news/"
+  "apnews.com/article/",
+  "www.bbc.com/news/",
+  "www.cnbc.com/",
+  "edition.cnn.com/",
+  "www.cnn.com/",
+  "www.foxnews.com/",
+  "www.theguardian.com/",
+  "nypost.com/",
+  "www.newsweek.com/",
+  "www.reuters.com/",
+  "www.washingtonexaminer.com/news/"
 ]
 
 const contents = document.querySelector("#contents");
@@ -58,6 +39,10 @@ function setEntries() {
   contents.style.display = "block";
   loadingDiv.style.display = "none";
   errorDiv.style.display = "none";
+}
+
+function removeHttp(url) {
+  return url.replace(/^https?:\/\//, '');
 }
 
 function updateEntries(results) {
@@ -90,7 +75,7 @@ async function fillInEntries() {
   setLoading()
 
   await chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-    url = tabs[0].url;
+    url = removeHttp(tabs[0].url);
 
     if (!isSupportedSource(url)) {
       setError()
@@ -105,7 +90,7 @@ async function fillInEntries() {
   if (loadingDiv.style.display == "block") {
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
       await chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        url = tabs[0].url;
+        url = removeHttp(tabs[0].url);
         if (areaName == url) {
           chrome.storage.local.get(url).then((result) => {
             updateEntries(result)
