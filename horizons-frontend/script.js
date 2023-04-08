@@ -104,12 +104,10 @@ async function fillInEntries() {
 
   if (loadingDiv.style.display == "block") {
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
-      console.log("storage changed")
       await chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         url = tabs[0].url;
         if (areaName == url) {
           chrome.storage.local.get(url).then((result) => {
-            console.log(result)
             updateEntries(result)
           });
         }
