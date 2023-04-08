@@ -2,7 +2,7 @@
 This file includes all the helper functions and the final method to be called when a user reads an article. 
 """
 # Importing the necessary libraries
-from google.cloud import language_v1
+from google.cloud import language_v1 # Imports the Google Cloud client library
 from google_senti_analysis import analyze_entity_sentiment
 
 # Defining global variables
@@ -21,17 +21,11 @@ MEDIA_BIAS_RATINGS = {
     'washington_examiner': 2.3,
 }
 
-# # List of more highly recommended media sources based on a user's locale (Since all of the sources are non-Asian, no specific sources are recommended for the asian region.)
-# LOCALE_BASED_RECS = {
-#     'america': ['bbc', 'guardian', 'reuters'],
-#     'europe': ['ap', 'cnbc', 'cnn', 'fox', 'new_york_post', 'newsweek', 'pbs', 'washington_examiner'],
-# }
-
 """
 When a reader reads an article, their respective entity-sentiment scores will be updated. (Only entities of type PERSON, LOCATION, ORG and EVENT will be tracked)
 
 Parameters:
-    - user_background: Dictionary with entities as keys and their corresponding sentiment as values.
+    - user_opinion: Dictionary with (entity_name, entity_type) as keys and their corresponding sentiment as values.
     - article_responses: Contains the various entities and their respective sentiment scores. It is the output from analysing the article using analyze_entity_sentiment
 """
 def update_opinion(user, article_responses):
