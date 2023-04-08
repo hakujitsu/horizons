@@ -60,11 +60,8 @@ def ranking_articles(article_arr):
     REC_INDEX = 2
     DIFF_IN_OPINION_INDEX = 3
 
-    print("length of article arr")
-    print(len(article_arr))
-
-    if (len(article_arr) == 0): # If there are no articles to recommend at the moment
-        return []
+    if (len(article_arr) <= 1): # If there are no articles / only one article to recommend at the moment
+        return article_arr
 
     # Step 1: Ranking the article that is most diff from the user's current sentiment as the second article
     ranked_articles = []

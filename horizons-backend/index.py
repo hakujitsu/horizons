@@ -7,7 +7,6 @@ from recommendation import get_final_recommendations
 from updates import read_article
 from shortlist_headlines import headline_similarity_score
 
-
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -59,10 +58,9 @@ def scrape():
     print(len(articles))
 
     # TODO: getting headline similarity score doesn't seem to work, will try other means
-    # score_list = map(lambda a: headline_similarity_score(original_article.title, a.title), articles)
-    # print(list(score_list))
-
-    articles = articles[0:10]
+    score_list = map(lambda a: headline_similarity_score(original_article.title, a.title), articles)
+    print(list(score_list))
+    # articles = articles[0:10]
 
     recommendations = get_final_recommendations(user, original_article, articles)
     print(recommendations)

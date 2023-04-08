@@ -169,8 +169,8 @@ def headline_similarity_score(read_headline, rec_headline):
     final_score = (ner_similarity_percent(read_headline, rec_headline) * 0.7) + (unigram_similarity(read_headline, rec_headline) * 0.15) + (bigram_similarity(read_headline, rec_headline) * 0.15) 
 
     # Method 2: Using google cloud sentiment analysis
-    read_headline_response = analyze_entity_sentiment(read_headline)
-    rec_headline_response = analyze_entity_sentiment(rec_headline)
-    final_score = diff_in_sentiment(read_headline_response, rec_headline_response)
+    # read_headline_response = analyze_entity_sentiment(read_headline)
+    # rec_headline_response = analyze_entity_sentiment(rec_headline)
+    # final_score = diff_in_sentiment(read_headline_response, rec_headline_response)
 
     return final_score # TODO @MY if score is > 0.5 we can shortlist articles?

@@ -42,26 +42,30 @@ def getSimilarArticles(url):
     if (source == None or title == None or article == None):
       return []
     query = buildQuery(title, article)
-    articles = scrapeGNews(query, source)
+    articles = scrapeGNews(query, original_article.title)
     return original_article, articles
 
 
-def scrapeGNews(query, source):
+def scrapeGNews(query, original_article_title):
     query = urllib.parse.quote(query)
     url = BASE_URL + "?q=" + query + "&hl=en-SG&gl=SG&ceid=SG%3Aen"
 
     feed = feedparser.parse(url)
-    entries = parseGNewsRSS(feed)
+    entries = parseGNewsRSS(feed, original_article_title)
 
     return entries
 
-def parseGNewsRSS(feed):
-    entries = list(filter(lambda item: item is not None, map(parseGNewsEntry, feed['entries'])))
+def parseGNewsRSS(feed, original_article_title):
+    entries = list(filter(lambda item: item is not None,
+                          map(lambda e : parseGNewsEntry(e, original_article_title), feed['entries'])))
     entries = parseNewsEntries(entries)
     return entries
 
-def parseGNewsEntry(entry):
+def parseGNewsEntry(entry, original_article_title):
     title = entry['title']
+    # Remove articles with the same title as the original_article (don't recommend the article currently being read)
+    if (original_article_title in title):
+        return None
     date_published = entry['published']
     source = entry['source']['title']
     if (source.strip() in SUPPORTED_NEWS_SOURCES):
