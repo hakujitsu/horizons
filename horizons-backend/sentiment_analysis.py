@@ -20,7 +20,6 @@ MEDIA_BIAS_RATINGS = {
     NewsSource.WASHINGTON: 2.3,
 }
 
-# TODO: set frontend locale to America and Europe
 # Since all of the sources are non-Asian, no specific sources are recommended for the asian region.
 LOCALE_BASED_RECS = {
     'USA': [NewsSource.BBC, NewsSource.GUARDIAN, NewsSource.REUTERS],

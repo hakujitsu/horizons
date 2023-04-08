@@ -44,7 +44,6 @@ def getSimilarArticles(url):
     query = buildQuery(title, article)
     articles = scrapeGNews(query, source)
     return original_article, articles
-    # TODO: perform sentiment analysis on articles
 
 
 def scrapeGNews(query, source):
