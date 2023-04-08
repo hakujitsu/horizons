@@ -45,9 +45,14 @@ function removeHttp(url) {
 }
 
 function updateEntries(results) {
-  for (let i = 0; i < 3; i++) {
+  entry1.style.display = "none";
+  entry2.style.display = "none";
+  entry3.style.display = "none";
+
+  for (let i = 0; i < results.length; i++) {
     const currEntry = entries[i];
     const currResult = results[i];
+    currEntry.style.display = "block"
 
     currEntry.querySelector("div.title").innerHTML = currResult.title;
     currEntry.querySelector("div.source").innerHTML = currResult.source;
