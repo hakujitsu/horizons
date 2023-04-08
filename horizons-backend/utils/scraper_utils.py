@@ -15,17 +15,17 @@ from scrapers.washington_examiner_scraper import parseArticle as parseWE
 
 # class syntax
 class NewsSource(Enum):
-    AP_NEWS = 1
-    BBC = 2
-    CNBC = 3
-    CNN = 4
-    FOX = 5
-    GUARDIAN = 6
-    NYP = 7
-    NEWSWEEK = 8
-    PBS = 9
-    REUTERS = 10
-    WASHINGTON = 11
+    AP_NEWS = "AP News"
+    BBC = "BBC"
+    CNBC = "CNBC"
+    CNN = "CNN"
+    FOX = "Fox News"
+    GUARDIAN = "The Guardian"
+    NYP = "New York Post"
+    NEWSWEEK = "Newsweek"
+    PBS = "PBS NewsHour"
+    REUTERS = "Reuters"
+    WASHINGTON = "Washington Examiner"
 
 def getArticleSource(url):
     if ("apnews.com" in url):
