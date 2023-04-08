@@ -3,24 +3,20 @@
   "name": "Horizons",
   "description": "Delve into new topics and expand your intellectual horizons through suggested articles that challenge your usual scope of reading",
   "version": "1.0",
-  "icons": {
-    "16": "images/icon-16.ico",
-    "32": "images/icon-32.ico",
-    "48": "images/icon-48.ico",
-    "128": "images/icon-128.ico"
-  },
-  "host_permissions": ["http://localhost:5000/*",
-  "https://apnews.com/article/*",
-  "https://www.bbc.com/news/*",
-  "https://www.cnbc.com/*",
-  "https://edition.cnn.com/*",
-  "https://www.cnn.com/*",
-  "https://www.foxnews.com/*",
-  "https://www.theguardian.com/*",
-  "https://nypost.com/*",
-  "https://www.newsweek.com/*",
-  "https://www.reuters.com/*",
-  "https://www.washingtonexaminer.com/news/*"],
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "https://apnews.com/article/*",
+    "https://www.bbc.com/news/*",
+    "https://www.cnbc.com/*",
+    "https://edition.cnn.com/*",
+    "https://www.cnn.com/*",
+    "https://www.foxnews.com/*",
+    "https://www.theguardian.com/*",
+    "https://nypost.com/*",
+    "https://www.newsweek.com/*",
+    "https://www.reuters.com/*",
+    "https://www.washingtonexaminer.com/news/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -45,8 +41,17 @@
     }
   ],
   "action": {
-    "default_icon": "images/icon-48.ico",
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "32": "images/icon-32.png"
+    },
     "default_popup": "index.html",
     "default_title": "Horizon Recommendations"
+  },
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
   }
 }
