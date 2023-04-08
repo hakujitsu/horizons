@@ -43,6 +43,16 @@ html {
   margin-top: 4px;
 }
 
+/* NO SUGGESTIONS DISPLAY */
+
+#no-suggestions {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+  text-align: center;
+  display: none;
+}
+
 /* ERROR DISPLAY */
 
 #error {

@@ -15,6 +15,7 @@ const SUPPORTED_SOURCES = [
 const contents = document.querySelector("#contents");
 const loadingDiv = document.querySelector("#loading");
 const errorDiv = document.querySelector("#error");
+const noSuggestionsDiv = document.querySelector("#no-suggestions");
 
 const entry1 = document.querySelector("#entry-1");
 const entry2 = document.querySelector("#entry-2");
@@ -26,18 +27,28 @@ function setError() {
   contents.style.display = "none";
   errorDiv.style.display = "block";
   loadingDiv.style.display = "none";
+  noSuggestionsDiv.style.display = "none";
 }
 
 function setLoading() {
   contents.style.display = "none";
   errorDiv.style.display = "none";
   loadingDiv.style.display = "block";
+  noSuggestionsDiv.style.display = "none";
 }
 
 function setEntries() {
   contents.style.display = "block";
   loadingDiv.style.display = "none";
   errorDiv.style.display = "none";
+  noSuggestionsDiv.style.display = "none";
+}
+
+function setNoSuggestions() {
+  contents.style.display = "none";
+  loadingDiv.style.display = "none";
+  errorDiv.style.display = "none";
+  noSuggestionsDiv.style.display = "block";
 }
 
 function removeHttp(url) {
@@ -45,6 +56,11 @@ function removeHttp(url) {
 }
 
 function updateEntries(results) {
+  if(results.length == 0) {
+    setNoSuggestions()
+    return
+  }
+
   entry1.style.display = "none";
   entry2.style.display = "none";
   entry3.style.display = "none";
@@ -64,7 +80,6 @@ function updateEntries(results) {
     setEntries()
   }
 }
-
 
 function isSupportedSource(url) {
   for (const source of SUPPORTED_SOURCES) {

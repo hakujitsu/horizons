@@ -37,10 +37,14 @@ class NewsEntry:
 
 
 def getSimilarArticles(url):
-    source, title, article = scrapeArticleWithUrl(url)
-    original_article = NewsEntry(title, article, url, "", source)
+    original_article = None
+    try:
+        source, title, article = scrapeArticleWithUrl(url)
+        original_article = NewsEntry(title, article, url, "", source)
+    except:
+        return None, None
     if (source == None or title == None or article == None):
-      return []
+      return None, None
     query = buildQuery(title, article)
     articles = scrapeGNews(query, original_article.title)
     return original_article, articles

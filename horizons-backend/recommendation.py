@@ -38,9 +38,6 @@ Parameters:
 def shortlist_top_3(article_arr):
     article_arr.sort(key= lambda x: x[2], reverse=True)
 
-    print("shortlisting length")
-    print(len(article_arr))
-
     if (len(article_arr) < 3):
         return article_arr
     else:
@@ -135,6 +132,7 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
 
         rec_article_scores.sort(key= lambda x: x[1], reverse=True)
         possible_articles_arr = rec_article_scores[0:15]
+        possible_articles_arr = list(map(lambda a: a[0], possible_articles_arr))
 
     # Main shortlisting
     rec_article_scores = []

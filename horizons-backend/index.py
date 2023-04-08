@@ -38,22 +38,22 @@ def scrape():
     user_id = data.get("user_id")
     url = data.get("url")
     print(url)
+
+    # TODO: remove later
     user_id = 0
     addMockUserToDict()
     updateUserHistory(user_id, url)
     user = getUserFromDict(user_id)
 
-    # print("initial user:")
-    # user.printDetails()
 
     original_article, articles = getSimilarArticles(url)
 
+    # Article could not be scraped.
+    if (original_article == None):
+        return jsonify(recommendations = [], id = url)
+
     read_article(user, original_article)
 
-    # print("later user:")
-    # user.printDetails()
-
-    print(original_article)
     print(original_article.title)
     print(len(articles))
 
