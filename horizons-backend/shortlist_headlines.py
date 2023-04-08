@@ -4,7 +4,7 @@ This files contains functions to shortlist possible recommendations purely based
 # Import necessary libraries
 import en_core_web_sm
 import string
-from google.cloud import language_v1
+from google.cloud import language_v1 # Imports the Google Cloud client library
 from google_senti_analysis import analyze_entity_sentiment
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
