@@ -4,7 +4,7 @@ This file contains the functions required to shortlist and rank the recommended 
 
 # Import the necessary libraries/functions
 from google_senti_analysis import analyze_entity_sentiment
-from sentiment_analysis import diff_in_sentiment, overall_diff_in_opinion, diff_in_political_bias, diff_in_locale
+from sentiment_analysis import diff_in_sentiment, overall_diff_in_opinion, diff_in_political_bias, diff_in_locale, diff_in_political_bias_articles
 from shortlist_headlines import headline_similarity_score
 
 """
@@ -18,6 +18,8 @@ Parameters:
     - weights: A tuple of floats that are to be assigned as weights to each of the above scores. Tuple will be in the format of (sentiment_diff_weight, opinion_diff_weight, political_bias_weight, locale_diff_weight)
 """
 def recommendation_score(diff_in_sentiment_score, diff_in_opinion_score, diff_in_political_bias_score, diff_in_locale, weights):
+    print(weights)
+
     f_1 = (diff_in_sentiment_score * weights[0]) 
     f_2 = (diff_in_opinion_score * weights[1]) 
     f_3 = (diff_in_political_bias_score * weights[2]) 
@@ -25,6 +27,10 @@ def recommendation_score(diff_in_sentiment_score, diff_in_opinion_score, diff_in
     
     # final_score = (diff_in_sentiment_score * weights[0]) + (diff_in_opinion_score * weights[1]) + (diff_in_political_bias_score * weights[2]) + (diff_in_locale * weights[3])
 
+    print('sentiment score: ' + str(f_1))
+    print('opinion score: ' + str(f_2))
+    print('political bias score: ' + str(f_3))
+    print('locale score: ' + str(f_4) + '\n')
     return f_1 + f_2 + f_3 + f_4
 
 """
@@ -36,12 +42,33 @@ Parameters:
     - article_arr: Array containing tuples of (article, timstamp_of_release, recommendation_score, diff_in_opinion_score) for the top 3 shortlisted articles.
 """
 def shortlist_top_3(article_arr):
-    article_arr.sort(key= lambda x: x[2], reverse=True)
+    # article_arr.sort(key= lambda x: x[2], reverse=True)
 
-    if (len(article_arr) < 3):
-        return article_arr
+    # if (len(article_arr) < 3):
+    #     return article_arr
+    # else:
+    #     return article_arr[0:3]
+    DIFF_IN_ARTICLES_INDEX = 2
+    DIFF_BET_USER_AND_ARTICLE_INDEX = 3
+
+    article_arr.sort(key= lambda x: x[DIFF_IN_ARTICLES_INDEX], reverse=True) # Sort by sentiment first
+
+    if (len(article_arr) > 6):
+        half = (len(article_arr) // 2) + 1 # Round up
+        article_arr = article_arr[:half]
+
+        final_list = []
+        article_arr.sort(key= lambda x: x[DIFF_BET_USER_AND_ARTICLE_INDEX], reverse=True) # Sort by opinions first
+        # Extracting the top 2 articles most diff in opinion and 1 that is least diff in opinion
+        final_list.append(article_arr[0])
+        final_list.append(article_arr[1])
+        final_list.append(article_arr[-1])
+
+        return final_list
     else:
-        return article_arr[0:3]
+        return article_arr
+
+
 
 """
 Ranks shortlisted articles. The article that seems to greatly differ from a user's current sentiments will be placed second. Between the other 2 articles, the one with the higher recommendation score will be ranked first. 
@@ -91,11 +118,11 @@ def ranking_articles(article_arr):
     highest_rec_score = 0
 
     for i in range(0, len(article_arr)):
-        if (first_article_index == -1 or (article_arr[i][1] > highest_rec_score)):
+        if (first_article_index == -1 or (article_arr[i][REC_INDEX] > highest_rec_score)):
             first_article_index = i
-            highest_rec_score = article_arr[i][1]
+            highest_rec_score = article_arr[i][REC_INDEX]
 
-    ranked_articles.append(article_arr.pop(first_article_index))
+    ranked_articles.insert(0, article_arr.pop(first_article_index))
     if (len(article_arr) > 0): 
         ranked_articles.append(article_arr.pop(0))
 
@@ -119,6 +146,7 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
     user_locale = user.get_locale() # TODO @MY need this method
 
     # Information on the article being currently read
+    read_article_source = read_article.source
     read_article_headline = read_article.title # TODO @MY need this method
     read_article_body_text = read_article.article # TODO @MY need this method
     read_article_response = analyze_entity_sentiment(read_article_body_text)
@@ -136,7 +164,6 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
 
     # Main shortlisting
     rec_article_scores = []
-    weights = [1, 1, 1, 1] # TODO: Need to figure out the best weights
 
     for rec_article in possible_articles_arr:
         rec_article_source = rec_article.source # TODO @MY need this method
@@ -148,14 +175,32 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
         sentiment_diff_score = diff_in_sentiment(read_article_response, rec_article_response)
         opinion_diff_score = overall_diff_in_opinion(user_opinion, rec_article_response)
         political_bias_diff_score = diff_in_political_bias(user_political_bias, rec_article_source)
-        local_diff_score = diff_in_locale(user_locale, rec_article_source)
+        locale_diff_score = diff_in_locale(user_locale, rec_article_source)
 
-        overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, weights)
+        # Method 1: Based on shortlisted and ranked based on an recommendation score, where each factor is assigned equal weight
+        # recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, [1, 1, 1, 1])
+        
+        # Method 2: Based on shortlisted and ranked based on an recommendation score, where each factor is assigned a different weight to ensure that it is sufficiently significant in the recommendation score
+        # overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, [1000, 100, 1, 1])
 
-        rec_article_scores.append((rec_article, timestamp, overall_rec_score, opinion_diff_score))
+        # rec_article_scores.append((rec_article, timestamp, overall_rec_score, opinion_diff_score))
 
+        # Method 3: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's.
+        # rec_article_scores.append((rec_article, timestamp, (sentiment_diff_score * 1000) + local_diff_score, (opinion_diff_score) + political_bias_diff_score))
+
+        # Method 4: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's. This additionally includes the difference in the soures' political bias.(FINAL)
+        diff_between_articles = (sentiment_diff_score * 1000) + locale_diff_score + diff_in_political_bias_articles(read_article_source, rec_article_source)
+        diff_between_reader_and_rec_article = opinion_diff_score + political_bias_diff_score
+
+        rec_article_scores.append((rec_article, timestamp, diff_between_articles, diff_between_reader_and_rec_article))
+
+    # print(rec_article_scores) # For testing
     top_3_rec_articles = shortlist_top_3(rec_article_scores)
+    # print(top_3_rec_articles) # For testing
 
     articles_to_return = list(map(lambda a: a[0], ranking_articles(top_3_rec_articles)))
+
+    # for article in articles_to_return: # For testing
+    #     print(article.title)
 
     return articles_to_return
