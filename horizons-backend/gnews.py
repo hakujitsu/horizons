@@ -119,10 +119,12 @@ async def asyncParseNewsEntries(entries):
 async def parseEntry(e, session):
     async with session.get(e.link, headers=REQUEST_HEADER) as response:
         html = await response.text()
-        source, header, article = scrapeArticleWithHtml(e.link, html)
-        if (article != None):
-            return NewsEntry(header, article, e.link, e.date_published, source)
-        return None
+        try:
+            source, header, article = scrapeArticleWithHtml(e.link, html)
+            if (article != None):
+                return NewsEntry(header, article, e.link, e.date_published, source)
+        except:
+            return None
 
 # TODO: refactor google news URL parsing to utils
 _ENCODED_URL_PREFIX = "https://news.google.com/rss/articles/"

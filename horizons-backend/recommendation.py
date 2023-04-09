@@ -136,6 +136,7 @@ def calculate_rec_article_scores(rec_article: Tuple, shared_data: dict) -> Tuple
     user_opinion = shared_data['user_opinion']
     user_political_bias = shared_data['user_political_bias']
     user_locale = shared_data['user_locale']
+    read_article_source = shared_data['read_article_source']
     # calculate acc_score and prec_score for the article
     rec_article_source = rec_article[3] # TODO @MY need this method
     rec_article_body_text = rec_article[2] # TODO @MY need this method
@@ -146,13 +147,30 @@ def calculate_rec_article_scores(rec_article: Tuple, shared_data: dict) -> Tuple
     sentiment_diff_score = diff_in_sentiment(read_article_response, rec_article_response)
     opinion_diff_score = overall_diff_in_opinion(user_opinion, rec_article_response)
     political_bias_diff_score = diff_in_political_bias(user_political_bias, rec_article_source)
-    local_diff_score = diff_in_locale(user_locale, rec_article_source)
+    locale_diff_score = diff_in_locale(user_locale, rec_article_source)
 
-    overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, WEIGHTS)
+    # Method 1: Based on shortlisted and ranked based on an recommendation score, where each factor is assigned equal weight
+    # recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, [1, 1, 1, 1])
 
-    return (rec_article[0], timestamp, overall_rec_score, opinion_diff_score)
+    # Method 2: Based on shortlisted and ranked based on an recommendation score, where each factor is assigned a different weight to ensure that it is sufficiently significant in the recommendation score
+    # overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, [1000, 100, 1, 1])
 
-def calculate_scores_for_articles(articles, read_article_response, user_opinion, user_political_bias, user_locale):
+    # rec_article_scores.append((rec_article, timestamp, overall_rec_score, opinion_diff_score))
+
+    # Method 3: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's.
+    # rec_article_scores.append((rec_article, timestamp, (sentiment_diff_score * 1000) + local_diff_score, (opinion_diff_score) + political_bias_diff_score))
+
+    # Method 4: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's. This additionally includes the difference in the soures' political bias.(FINAL)
+    diff_between_articles = (sentiment_diff_score * 1000) + diff_in_political_bias_articles(read_article_source, rec_article_source)
+    diff_between_reader_and_rec_article = opinion_diff_score + political_bias_diff_score + locale_diff_score
+
+    overall_rec_score = (rec_article[0], timestamp, diff_between_articles, diff_between_reader_and_rec_article)
+
+    # overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, locale_diff_score, WEIGHTS)
+
+    return overall_rec_score
+
+def calculate_scores_for_articles(articles, read_article_response, user_opinion, user_political_bias, user_locale, read_article_source):
     article_tuples = list()
     for idx, a in enumerate(articles):
         article_tuples.append((idx, a.title, a.article, a.source.value))
@@ -163,12 +181,14 @@ def calculate_scores_for_articles(articles, read_article_response, user_opinion,
         shared_data['user_opinion'] = user_opinion
         shared_data['user_political_bias'] = user_political_bias
         shared_data['user_locale'] = user_locale
+        shared_data['read_article_source'] = read_article_source.value
 
         # Create a pool of worker processes
         with multiprocessing.Pool() as pool:
             # Call calculate_scores_for_articles for each article using pool.map()
             results = pool.starmap(calculate_rec_article_scores, [(article, shared_data) for article in article_tuples])
 
+            print(results)
             return_value = list()
             for a in results:
                 new_tuple = list(a)
@@ -217,37 +237,7 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
         possible_articles_arr = list(map(lambda a: a[0], possible_articles_arr))
 
     # Main shortlisting
-    rec_article_scores = []
-
-    for rec_article in possible_articles_arr:
-        rec_article_source = rec_article.source # TODO @MY need this method
-        rec_article_body_text = rec_article.article # TODO @MY need this method
-        timestamp = "" # TODO @MY need this method (if we want to scrape this)
-        rec_article_response = analyze_entity_sentiment(rec_article_body_text)
-
-        # Computing the diff scores
-        sentiment_diff_score = diff_in_sentiment(read_article_response, rec_article_response)
-        opinion_diff_score = overall_diff_in_opinion(user_opinion, rec_article_response)
-        political_bias_diff_score = diff_in_political_bias(user_political_bias, rec_article_source)
-        locale_diff_score = diff_in_locale(user_locale, rec_article_source)
-
-        # Method 1: Based on shortlisted and ranked based on an recommendation score, where each factor is assigned equal weight
-        # recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, [1, 1, 1, 1])
-
-        # Method 2: Based on shortlisted and ranked based on an recommendation score, where each factor is assigned a different weight to ensure that it is sufficiently significant in the recommendation score
-        # overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, [1000, 100, 1, 1])
-
-        # rec_article_scores.append((rec_article, timestamp, overall_rec_score, opinion_diff_score))
-
-        # Method 3: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's.
-        # rec_article_scores.append((rec_article, timestamp, (sentiment_diff_score * 1000) + local_diff_score, (opinion_diff_score) + political_bias_diff_score))
-
-        # Method 4: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's. This additionally includes the difference in the soures' political bias.(FINAL)
-        diff_between_articles = (sentiment_diff_score * 1000) + diff_in_political_bias_articles(read_article_source, rec_article_source)
-        diff_between_reader_and_rec_article = opinion_diff_score + political_bias_diff_score + locale_diff_score
-
-        rec_article_scores.append((rec_article, timestamp, diff_between_articles, diff_between_reader_and_rec_article))
-
+    rec_article_scores = calculate_scores_for_articles(possible_articles_arr, read_article_response, user_opinion, user_political_bias, user_locale, read_article_source)
     # print(rec_article_scores) # For testing
     top_3_rec_articles = shortlist_top_3(rec_article_scores)
     # print(top_3_rec_articles) # For testing

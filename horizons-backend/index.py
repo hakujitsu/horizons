@@ -36,7 +36,7 @@ def scrape():
     data = request.json
     user_id = data.get("user_id")["user_id"]
     url = data.get("url")
-    # print(url)
+    print(url)
     # print(user_id)
 
     # TODO: remove later
