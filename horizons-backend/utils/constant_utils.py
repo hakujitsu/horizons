@@ -4,3 +4,5 @@ BASE_URL = "{0}/rss/search".format(GOOGLE_NEWS_URL)
 
 SUPPORTED_NEWS_SOURCES = ["The Associated Press", "BBC", "CNBC", "CNN", "Fox News", "The Guardian",
                           "New York Post", "Newsweek", "PBS NewsHour", "Reuters", "Washington Examiner"]
+
+SOURCES = ["apnews.com", "bbc.com", "cnbc.com", "cnn.com", "foxnews.com", "theguardian.com", "nypost.com", "newsweek.com", "pbs.org", "reuters.com", "washingtonexaminer.com"]
