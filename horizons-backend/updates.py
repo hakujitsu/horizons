@@ -33,6 +33,9 @@ def update_opinion(user, article_responses):
     relevant_entities = ['PERSON', 'LOCATION', 'ORG', 'EVENT']
     user_opinion = user.get_opinion() # TODO: @MY
 
+    # print(article_responses.entities)
+    # article_responses.entities.sort(key= lambda x: x.salience, reverse=True)
+
     for article_entity in article_responses.entities:
         article_entity_name = article_entity.name
         article_entity_type = language_v1.Entity.Type(article_entity.type_).name
@@ -87,6 +90,7 @@ def read_article(user, article):
     # Update the user's opinions
     body_text = article.article # TODO: @MY
     article_response = analyze_entity_sentiment(body_text)
+    article.setEntitySentiment(article_response)
     update_opinion(user, article_response)
 
     # Update the user's political bias

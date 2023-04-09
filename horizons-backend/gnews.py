@@ -27,6 +27,16 @@ class NewsEntry:
         self.link = link
         self.date_published = date_published
         self.source = source
+        self._entity_sentiment = None
+
+    def getEntitySentiment(self):
+        return self._entity_sentiment
+
+    def setEntitySentiment(self, entity_sentiment):
+        self._entity_sentiment = entity_sentiment
+
+    def getSource(self):
+        return self.source.value
 
     def export(self):
         return {
@@ -35,18 +45,29 @@ class NewsEntry:
             "url": self.link,
         }
 
-def getSimilarArticles(url):
+    def __getstate__(self):
+        return {'title': self.title, 'article': self.article, 'source': self.source}
+
+    def __setstate__(self, state):
+        self.title = state['title']
+        self.article = state['article']
+        self.source = state['source']
+
+def scrapeOriginalArticle(url):
     original_article = None
     try:
         source, title, article = scrapeArticleWithUrl(url)
         original_article = NewsEntry(title, article, url, "", source)
     except:
-        return None, None
+        return None
     if (source == None or title == None or article == None):
-      return None, None
-    query = buildQuery(title, article)
+      return None
+    return original_article
+
+def getSimilarArticles(original_article):
+    query = buildQuery(original_article.title, original_article.article)
     articles = scrapeGNews(query, original_article.title)
-    return original_article, articles
+    return articles
 
 
 def scrapeGNews(query, original_article_title):
@@ -98,10 +119,12 @@ async def asyncParseNewsEntries(entries):
 async def parseEntry(e, session):
     async with session.get(e.link, headers=REQUEST_HEADER) as response:
         html = await response.text()
-        source, header, article = scrapeArticleWithHtml(e.link, html)
-        if (article != None):
-            return NewsEntry(header, article, e.link, e.date_published, source)
-        return None
+        try:
+            source, header, article = scrapeArticleWithHtml(e.link, html)
+            if (article != None):
+                return NewsEntry(header, article, e.link, e.date_published, source)
+        except:
+            return None
 
 # TODO: refactor google news URL parsing to utils
 _ENCODED_URL_PREFIX = "https://news.google.com/rss/articles/"

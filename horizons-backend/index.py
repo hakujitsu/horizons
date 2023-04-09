@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from gnews import getSimilarArticles
+from gnews import getSimilarArticles, scrapeOriginalArticle
 from users import addUserToDict
 from flask_cors import CORS, cross_origin
 from users import updateUserHistory, getUserFromDict, addMockUserToDict
@@ -36,7 +36,7 @@ def scrape():
     data = request.json
     user_id = data.get("user_id")["user_id"]
     url = data.get("url")
-    # print(url)
+    print(url)
     # print(user_id)
 
     # TODO: remove later
@@ -46,13 +46,13 @@ def scrape():
     updateUserHistory(user_id, url)
     user = getUserFromDict(user_id)
 
-    original_article, articles = getSimilarArticles(url)
-
+    original_article = scrapeOriginalArticle(url)
     # Article could not be scraped.
     if (original_article == None):
         return jsonify(recommendations = [], id = url)
 
     read_article(user, original_article)
+    articles = getSimilarArticles(original_article)
 
     print(original_article.title)
     print(len(articles))

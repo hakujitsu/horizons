@@ -56,7 +56,9 @@ function removeHttp(url) {
 }
 
 function updateEntries(results) {
-  if(results.length == 0) {
+  if(results == undefined) {
+    return
+  } else if(results.length == 0) {
     setNoSuggestions()
     return
   }
