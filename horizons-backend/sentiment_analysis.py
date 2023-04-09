@@ -49,9 +49,15 @@ def diff_in_sentiment(reading_article_response, rec_article_response):
             if (reading_article_entity_name == rec_article_entity_name and reading_article_entity_type == rec_article_entity_type):
                 reading_article_score += (reading_article_entity.salience * reading_article_entity.sentiment.score)
                 rec_article_score += (rec_article_entity.salience * rec_article_entity.sentiment.score)
-                break
+                # print('----')
+                # print(reading_article_score)
+                # print(rec_article_score)
+                # print('----')
+                # break
 
-    diff_in_sentiment = rec_article_score - reading_article_score
+    print(rec_article_score)
+    print(reading_article_score)
+    diff_in_sentiment = abs(rec_article_score - reading_article_score)
 
     return diff_in_sentiment # TODO: Have to normalise across all shortlisted articles
 
@@ -59,7 +65,7 @@ def diff_in_sentiment(reading_article_response, rec_article_response):
 Computes how much a user's current sentiments on various entities would change after reading a given article. 
 
 Parameters:
-    - user_opinion: Dictionary with (entity_name, entity_type) as keys and their corresponding sentiment as values.
+    - user_opinion: Dictionary with (entity_name, entity_type) as keys and their (sentiment, number of articles read) as values.
     - article_responses: Contains the various entities and their respective sentiment scores. It is the output from analysing the article using analyze_entity_sentiment
 """
 def overall_diff_in_opinion(user_opinion, article_responses):
@@ -73,7 +79,6 @@ def overall_diff_in_opinion(user_opinion, article_responses):
 
         if (article_entity_type in relevant_entities and curr_entity_key in user_opinion):
             curr_sentiment = user_opinion[curr_entity_key][0]
-
             num_of_read_articles = user_opinion[curr_entity_key][1]
 
             new_sentiment = ((curr_sentiment * num_of_read_articles) + (article_entity.salience * article_entity.sentiment.score)) / float(num_of_read_articles + 1)
@@ -99,7 +104,13 @@ def diff_in_political_bias(user_political_bias, curr_source):
     avg_bias_of_read_articles = user_political_bias[1]
     curr_user_bias = (baseline_bias * 0.7) + (avg_bias_of_read_articles * 0.3)
 
-    return curr_source_bias - curr_user_bias # The negative/positive is important! 
+    return abs(curr_source_bias - curr_user_bias) # The negative/positive is important! 
+
+def diff_in_political_bias_articles(read_source, curr_source):
+    curr_source_bias = MEDIA_BIAS_RATINGS[curr_source] # TODO: Must make sure the curr_source is of the right format
+    read_source_bias = MEDIA_BIAS_RATINGS[read_source]
+
+    return abs(curr_source_bias - read_source_bias) # The negative/positive is important! 
 
 """
 Measures if the media source has a different locale compared to the user. Articles written by a source of a different locale are more highly recommended so as to broaden the user's horizons.
