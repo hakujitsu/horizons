@@ -1,7 +1,7 @@
 import urllib.parse
 from utils.scraper_utils import scrapeArticleWithUrl, scrapeArticleWithHtml
 from utils.text_utils import buildQuery
-from utils.constant_utils import BASE_URL, SUPPORTED_NEWS_SOURCES, REQUEST_HEADER
+from utils.constant_utils import BASE_URL, SUPPORTED_NEWS_SOURCES, REQUEST_HEADER, SOURCES
 import feedparser
 import ssl
 import base64
@@ -31,10 +31,9 @@ class NewsEntry:
     def export(self):
         return {
             "title": self.title,
-            "source": self.source.name,
+            "source": self.source.value,
             "url": self.link,
         }
-
 
 def getSimilarArticles(url):
     original_article = None
@@ -52,17 +51,23 @@ def getSimilarArticles(url):
 
 def scrapeGNews(query, original_article_title):
     query = urllib.parse.quote(query)
-    url = BASE_URL + "?q=" + query + "&hl=en-SG&gl=SG&ceid=SG%3Aen"
+    entries = list()
 
+    for source in SOURCES:
+        entries = entries + scrapeGNewsWithSite(query, original_article_title, source)
+
+    entries = parseNewsEntries(entries)
+    return entries
+
+def scrapeGNewsWithSite(query, original_article_title, site):
+    url = BASE_URL + "?q=" + query +  "%20site%3A" + site + "&hl=en-SG&gl=SG&ceid=SG%3Aen"
     feed = feedparser.parse(url)
     entries = parseGNewsRSS(feed, original_article_title)
-
-    return entries
+    return entries[0:2]
 
 def parseGNewsRSS(feed, original_article_title):
     entries = list(filter(lambda item: item is not None,
                           map(lambda e : parseGNewsEntry(e, original_article_title), feed['entries'])))
-    entries = parseNewsEntries(entries)
     return entries
 
 def parseGNewsEntry(entry, original_article_title):
@@ -119,5 +124,3 @@ def _decode_google_news_url(url: str) -> str:
 def decode_google_news_url(url: str) -> str:  # Not cached because not all Google News URLs are encoded.
     """Return Google News entry URLs after decoding their encoding as applicable."""
     return _decode_google_news_url(url) if url.startswith(_ENCODED_URL_PREFIX) else url
-
-

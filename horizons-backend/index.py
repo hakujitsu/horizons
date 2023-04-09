@@ -36,8 +36,8 @@ def scrape():
     data = request.json
     user_id = data.get("user_id")["user_id"]
     url = data.get("url")
-    print(url)
-    print(user_id)
+    # print(url)
+    # print(user_id)
 
     # TODO: remove later
     # user_id = 0
@@ -58,8 +58,8 @@ def scrape():
     print(len(articles))
 
     # TODO: consider other methods of shortlisting
-    score_list = map(lambda a: headline_similarity_score(original_article.title, a.title), articles)
-    print(list(score_list))
+    # score_list = map(lambda a: headline_similarity_score(original_article.title, a.title), articles)
+    # print(list(score_list))
     # articles = articles[0:10]
 
     recommendations = get_final_recommendations(user, original_article, articles)
