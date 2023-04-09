@@ -71,7 +71,7 @@ def overall_diff_in_opinion(user_opinion, article_responses):
         article_entity_type = language_v1.Entity.Type(article_entity.type_).name
         curr_entity_key = (article_entity_name, article_entity_type)
 
-        if (article_entity_type in relevant_entities and curr_entity_key in user_opinion and article_entity in user_opinion[curr_entity_key]):
+        if (article_entity_type in relevant_entities and curr_entity_key in user_opinion):
             curr_sentiment = user_opinion[curr_entity_key][0]
 
             num_of_read_articles = user_opinion[curr_entity_key][1]
