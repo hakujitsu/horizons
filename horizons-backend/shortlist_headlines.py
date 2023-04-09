@@ -69,10 +69,11 @@ def ner_similarity_percent(read_headline, rec_headline):
         elif len(entity_of_sec_term) > 0 and entity_of_sec_term[0].label_ not in non_valid_ner_cats:
             named_entities_rec_headline.append(paired_terms[1])
 
-    # Step 4: Calculating the percentage of similarity in terms of named entities between the 2 headlines 
+    # Step 4: Calculating the percentage of similarity in terms of named entities between the 2 headlines
+    num_of_significant_terms = 0
     for term in named_entities_rec_headline:
         num_of_significant_terms += tokenized_rec_headline[term]
-    
+
     percent_of_significance = float(num_of_significant_terms)/float(rec_headline_len)
 
     return percent_of_significance
@@ -95,7 +96,7 @@ def unigram_similarity(read_headline, rec_headline):
             read_headline_unigrams[read_headline[i]] += 1
         else:
             read_headline_unigrams[read_headline[i]] = 1
-    
+
     rec_headline = rec_headline.lower()
     rec_headline_len = len(rec_headline)
     for i in range(0, len(rec_headline)):
@@ -106,10 +107,10 @@ def unigram_similarity(read_headline, rec_headline):
 
     num_of_overlapping_unigrams = 0
 
-    for unigram in read_headline:
+    for unigram in list(read_headline_unigrams.keys()) :
         if (unigram in rec_headline):
-            num_of_overlapping_unigrams += read_headline[unigram] + rec_headline[unigram]
-    
+            num_of_overlapping_unigrams += read_headline_unigrams[unigram] + rec_headline_unigrams[unigram]
+
     percentage_similarity = float(num_of_overlapping_unigrams)/float(read_headline_len + rec_headline_len)
     return percentage_similarity
 
@@ -146,9 +147,9 @@ def bigram_similarity(read_headline, rec_headline):
 
     num_of_overlapping_bigrams = 0
 
-    for bigram in read_headline:
+    for bigram in list(read_headline_bigrams.keys()):
         if (bigram in rec_headline):
-            num_of_overlapping_bigrams += read_headline[bigram] + rec_headline[bigram]
+            num_of_overlapping_bigrams += read_headline_bigrams[bigram] + rec_headline_bigrams[bigram]
     
     percentage_similarity = float(num_of_overlapping_bigrams)/float(read_headline_len + rec_headline_len)
     return percentage_similarity
@@ -168,8 +169,8 @@ def headline_similarity_score(read_headline, rec_headline):
     final_score = (ner_similarity_percent(read_headline, rec_headline) * 0.7) + (unigram_similarity(read_headline, rec_headline) * 0.15) + (bigram_similarity(read_headline, rec_headline) * 0.15) 
 
     # Method 2: Using google cloud sentiment analysis
-    read_headline_response = analyze_entity_sentiment(read_headline)
-    rec_headline_response = analyze_entity_sentiment(rec_headline)
-    final_score = diff_in_sentiment(read_headline_response, rec_headline_response)
+    # read_headline_response = analyze_entity_sentiment(read_headline)
+    # rec_headline_response = analyze_entity_sentiment(rec_headline)
+    # final_score = diff_in_sentiment(read_headline_response, rec_headline_response)
 
     return final_score # TODO @MY if score is > 0.5 we can shortlist articles?

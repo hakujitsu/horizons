@@ -1,8 +1,13 @@
+function removeHttp(url) {
+  return url.replace(/^https?:\/\//, '');
+}
+
 async function getRecommendations() {
   let url = document.location.href;
+  httpless_url = removeHttp(url)
 
   addEventListener("beforeunload", (event) => {
-    chrome.storage.local.remove(url)
+    chrome.storage.local.remove(httpless_url)
   });
 
   await chrome.storage.local.get("user_id").then(async (user_id) => {
@@ -20,7 +25,7 @@ async function getRecommendations() {
     response.json().then(data => {
       res = JSON.parse(JSON.stringify(data))
       let obj= {};
-      obj[url] = res.recommendations;
+      obj[httpless_url] = res.recommendations;
       chrome.storage.local.set(obj)
     });
   });

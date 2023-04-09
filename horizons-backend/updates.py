@@ -4,21 +4,22 @@ This file includes all the helper functions and the final method to be called wh
 # Importing the necessary libraries
 from google.cloud import language_v1 # Imports the Google Cloud client library
 from google_senti_analysis import analyze_entity_sentiment
+from utils.scraper_utils import NewsSource
 
 # Defining global variables
 # Media Bias ratings taken from AllSides
 MEDIA_BIAS_RATINGS = {
-    'ap': -1.5,
-    'bbc': -0.8,
-    'cnbc': -0.9,
-    'cnn': -3.8,
-    'fox': 4,
-    'guardian': -2.4,
-    'new_york_post': 1.8,
-    'newsweek': 0.5,
-    'pbs': -1.1,
-    'reuters': 0,
-    'washington_examiner': 2.3,
+    NewsSource.AP_NEWS: -1.5,
+    NewsSource.BBC: -0.8,
+    NewsSource.CNBC: -0.9,
+    NewsSource.CNN: -3.8,
+    NewsSource.FOX: 4,
+    NewsSource.GUARDIAN: -2.4,
+    NewsSource.NYP: 1.8,
+    NewsSource.NEWSWEEK: 0.5,
+    NewsSource.PBS: -1.1,
+    NewsSource.REUTERS: 0,
+    NewsSource.WASHINGTON: 2.3,
 }
 
 """
@@ -49,10 +50,11 @@ def update_opinion(user, article_responses):
                 user_opinion[curr_entity_key][1] = num_of_read_articles + 1
 
             else: # If (entity_name, entity_type) is new
-                user_opinion[curr_entity_key][0] = (article_entity.salience * article_entity.sentiment.score)
-                user_opinion[curr_entity_key][1] = 1
+                value = [(article_entity.salience * article_entity.sentiment.score), 1]
+                user_opinion[curr_entity_key] = value
 
-            
+    user.update_opinion(user_opinion)
+
 
 """
 When a reader reads an article, their political bias scores will be updated. Returns the new political bias score for the given user.
@@ -69,7 +71,8 @@ def update_political_bias(user, curr_source_bias):
 
     new_bias_based_on_articles_read = ((bias_based_on_articles_read * num_of_articles_read) + curr_source_bias) / float(num_of_articles_read + 1)
 
-    return (baseline_bias, new_bias_based_on_articles_read, num_of_articles_read + 1)
+    new_bias = (baseline_bias, new_bias_based_on_articles_read, num_of_articles_read + 1)
+    user.update_political_bias(new_bias)
 
 """
 FINAL FUNCTION THAT NEEDS TO BE CALLED.
@@ -82,11 +85,11 @@ Parameters:
 """
 def read_article(user, article):
     # Update the user's opinions
-    body_text = article.get_body_text() # TODO: @MY
+    body_text = article.article # TODO: @MY
     article_response = analyze_entity_sentiment(body_text)
     update_opinion(user, article_response)
 
     # Update the user's political bias
-    article_source = article.get_source() # TODO: @MY
+    article_source = article.source # TODO: @MY
     source_bias = MEDIA_BIAS_RATINGS[article_source]
     update_political_bias(user, source_bias)

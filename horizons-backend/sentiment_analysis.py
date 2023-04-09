@@ -1,29 +1,30 @@
 """
 This file contains the functions required to carry out sentiment analysis on a given article.
 """
-
+from utils.scraper_utils import NewsSource
 from google.cloud import language_v1 # Imports the Google Cloud client library
 from google_senti_analysis import analyze_entity_sentiment
 
 # Based on AllSides Media Bias ratings
 MEDIA_BIAS_RATINGS = {
-    'ap': -1.5,
-    'bbc': -0.8,
-    'cnbc': -0.9,
-    'cnn': -3.8,
-    'fox': 4,
-    'guardian': -2.4,
-    'new_york_post': 1.8,
-    'newsweek': 0.5,
-    'pbs': -1.1,
-    'reuters': 0,
-    'washington_examiner': 2.3,
+    NewsSource.AP_NEWS: -1.5,
+    NewsSource.BBC: -0.8,
+    NewsSource.CNBC: -0.9,
+    NewsSource.CNN: -3.8,
+    NewsSource.FOX: 4,
+    NewsSource.GUARDIAN: -2.4,
+    NewsSource.NYP: 1.8,
+    NewsSource.NEWSWEEK: 0.5,
+    NewsSource.PBS: -1.1,
+    NewsSource.REUTERS: 0,
+    NewsSource.WASHINGTON: 2.3,
 }
 
 # Since all of the sources are non-Asian, no specific sources are recommended for the asian region.
 LOCALE_BASED_RECS = {
-    'america': ['bbc', 'guardian', 'reuters'],
-    'europe': ['ap', 'cnbc', 'cnn', 'fox', 'new_york_post', 'newsweek', 'pbs', 'washington_examiner'],
+    'USA': [NewsSource.BBC, NewsSource.GUARDIAN, NewsSource.REUTERS],
+    'UK': [NewsSource.AP_NEWS, NewsSource.CNBC, NewsSource.CNN, NewsSource.FOX, 
+               NewsSource.NYP, NewsSource.NEWSWEEK, NewsSource.PBS, NewsSource.WASHINGTON],
 }
 
 """
@@ -70,17 +71,17 @@ def overall_diff_in_opinion(user_opinion, article_responses):
         article_entity_type = language_v1.Entity.Type(article_entity.type_).name
         curr_entity_key = (article_entity_name, article_entity_type)
 
-        if (article_entity_type in relevant_entities and article_entity in user_opinion[curr_entity_key]):
+        if (article_entity_type in relevant_entities and curr_entity_key in user_opinion):
             curr_sentiment = user_opinion[curr_entity_key][0]
 
             num_of_read_articles = user_opinion[curr_entity_key][1]
-            
+
             new_sentiment = ((curr_sentiment * num_of_read_articles) + (article_entity.salience * article_entity.sentiment.score)) / float(num_of_read_articles + 1)
             accumulated_degree_of_change += abs(new_sentiment - curr_sentiment)
 
         else:
             accumulated_degree_of_change += abs(article_entity.salience * article_entity.sentiment.score)
-    
+
     return accumulated_degree_of_change # TODO: Have to normalise across all shortlisted articles
 
 """
@@ -112,3 +113,4 @@ def diff_in_locale(user_locale, curr_source):
 
     if (curr_source in recommended_sources):
         return 1 # Returns an arbitrary value (not a very high score as this is not a very significant factor)
+    return 0.5 # TODO: check if this is an appropriate factor
