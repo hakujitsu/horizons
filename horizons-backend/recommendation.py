@@ -6,8 +6,6 @@ This file contains the functions required to shortlist and rank the recommended 
 from google_senti_analysis import analyze_entity_sentiment
 from sentiment_analysis import diff_in_sentiment, overall_diff_in_opinion, diff_in_political_bias, diff_in_locale
 from shortlist_headlines import headline_similarity_score
-from multiprocessing import Pool
-from functools import partial
 import multiprocessing
 from typing import List, Tuple
 
