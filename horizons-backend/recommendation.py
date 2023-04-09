@@ -6,6 +6,13 @@ This file contains the functions required to shortlist and rank the recommended 
 from google_senti_analysis import analyze_entity_sentiment
 from sentiment_analysis import diff_in_sentiment, overall_diff_in_opinion, diff_in_political_bias, diff_in_locale
 from shortlist_headlines import headline_similarity_score
+from multiprocessing import Pool
+from functools import partial
+import multiprocessing
+from typing import List, Tuple
+
+
+WEIGHTS = [1, 1, 1, 1] # TODO: Need to figure out the best weights
 
 """
 Computes the recommendation score for a given article, with respect to the article being currently read by the user, as well the user's current opinions. This score is then returned.
@@ -18,14 +25,8 @@ Parameters:
     - weights: A tuple of floats that are to be assigned as weights to each of the above scores. Tuple will be in the format of (sentiment_diff_weight, opinion_diff_weight, political_bias_weight, locale_diff_weight)
 """
 def recommendation_score(diff_in_sentiment_score, diff_in_opinion_score, diff_in_political_bias_score, diff_in_locale, weights):
-    f_1 = (diff_in_sentiment_score * weights[0]) 
-    f_2 = (diff_in_opinion_score * weights[1]) 
-    f_3 = (diff_in_political_bias_score * weights[2]) 
-    f_4 = (diff_in_locale * weights[3])
-    
-    # final_score = (diff_in_sentiment_score * weights[0]) + (diff_in_opinion_score * weights[1]) + (diff_in_political_bias_score * weights[2]) + (diff_in_locale * weights[3])
-
-    return f_1 + f_2 + f_3 + f_4
+    final_score = (diff_in_sentiment_score * weights[0]) + (diff_in_opinion_score * weights[1]) + (diff_in_political_bias_score * weights[2]) + (diff_in_locale * weights[3])
+    return final_score
 
 """
 Selects the top 3 recommeded articles based on their recommendation scores. 
@@ -101,6 +102,54 @@ def ranking_articles(article_arr):
 
     return ranked_articles
 
+def calculate_rec_article_scores(rec_article: Tuple, shared_data: dict) -> Tuple[dict, dict, float, str]:
+    read_article_response = shared_data['read_article_response']
+    user_opinion = shared_data['user_opinion']
+    user_political_bias = shared_data['user_political_bias']
+    user_locale = shared_data['user_locale']
+    # calculate acc_score and prec_score for the article
+    rec_article_source = rec_article[3] # TODO @MY need this method
+    rec_article_body_text = rec_article[2] # TODO @MY need this method
+    timestamp = "" # TODO @MY need this method (if we want to scrape this)
+    rec_article_response = analyze_entity_sentiment(rec_article_body_text)
+
+    # Computing the diff scores
+    sentiment_diff_score = diff_in_sentiment(read_article_response, rec_article_response)
+    opinion_diff_score = overall_diff_in_opinion(user_opinion, rec_article_response)
+    political_bias_diff_score = diff_in_political_bias(user_political_bias, rec_article_source)
+    local_diff_score = diff_in_locale(user_locale, rec_article_source)
+
+    overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, WEIGHTS)
+
+    return (rec_article[0], timestamp, overall_rec_score, opinion_diff_score)
+
+def calculate_scores_for_articles(articles, read_article_response, user_opinion, user_political_bias, user_locale):
+    article_tuples = list()
+    for idx, a in enumerate(articles):
+        article_tuples.append((idx, a.title, a.article, a.source.value))
+
+    with multiprocessing.Manager() as manager:
+        shared_data = manager.dict()
+        shared_data['read_article_response'] = read_article_response
+        shared_data['user_opinion'] = user_opinion
+        shared_data['user_political_bias'] = user_political_bias
+        shared_data['user_locale'] = user_locale
+
+        # Create a pool of worker processes
+        with multiprocessing.Pool() as pool:
+            # Call calculate_scores_for_articles for each article using pool.map()
+            results = pool.starmap(calculate_rec_article_scores, [(article, shared_data) for article in article_tuples])
+
+            return_value = list()
+            for a in results:
+                new_tuple = list(a)
+                idx = a[0]
+                new_tuple[0] = articles[idx]
+                return_value.append(tuple(new_tuple))
+
+            return return_value
+
+
 """
 FINAL FUNCTION THAT NEEDS TO BE CALLED.
 
@@ -121,7 +170,10 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
     # Information on the article being currently read
     read_article_headline = read_article.title # TODO @MY need this method
     read_article_body_text = read_article.article # TODO @MY need this method
-    read_article_response = analyze_entity_sentiment(read_article_body_text)
+    read_article_response = read_article.getEntitySentiment()
+
+    if (read_article_response == None):
+        return []
 
     # If shortlisting by headlines first (to produce the final 10 to 15 articles)
     if (len(possible_articles_arr) > 15):
@@ -134,25 +186,7 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
         possible_articles_arr = rec_article_scores[0:15]
         possible_articles_arr = list(map(lambda a: a[0], possible_articles_arr))
 
-    # Main shortlisting
-    rec_article_scores = []
-    weights = [1, 1, 1, 1] # TODO: Need to figure out the best weights
-
-    for rec_article in possible_articles_arr:
-        rec_article_source = rec_article.source # TODO @MY need this method
-        rec_article_body_text = rec_article.article # TODO @MY need this method
-        timestamp = "" # TODO @MY need this method (if we want to scrape this)
-        rec_article_response = analyze_entity_sentiment(rec_article_body_text)
-
-        # Computing the diff scores
-        sentiment_diff_score = diff_in_sentiment(read_article_response, rec_article_response)
-        opinion_diff_score = overall_diff_in_opinion(user_opinion, rec_article_response)
-        political_bias_diff_score = diff_in_political_bias(user_political_bias, rec_article_source)
-        local_diff_score = diff_in_locale(user_locale, rec_article_source)
-
-        overall_rec_score = recommendation_score(sentiment_diff_score, opinion_diff_score, political_bias_diff_score, local_diff_score, weights)
-
-        rec_article_scores.append((rec_article, timestamp, overall_rec_score, opinion_diff_score))
+    rec_article_scores = calculate_scores_for_articles(possible_articles_arr, read_article_response, user_opinion, user_political_bias, user_locale)
 
     top_3_rec_articles = shortlist_top_3(rec_article_scores)
 

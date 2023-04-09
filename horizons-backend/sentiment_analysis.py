@@ -7,24 +7,24 @@ from google_senti_analysis import analyze_entity_sentiment
 
 # Based on AllSides Media Bias ratings
 MEDIA_BIAS_RATINGS = {
-    NewsSource.AP_NEWS: -1.5,
-    NewsSource.BBC: -0.8,
-    NewsSource.CNBC: -0.9,
-    NewsSource.CNN: -3.8,
-    NewsSource.FOX: 4,
-    NewsSource.GUARDIAN: -2.4,
-    NewsSource.NYP: 1.8,
-    NewsSource.NEWSWEEK: 0.5,
-    NewsSource.PBS: -1.1,
-    NewsSource.REUTERS: 0,
-    NewsSource.WASHINGTON: 2.3,
+    NewsSource.AP_NEWS.value: -1.5,
+    NewsSource.BBC.value: -0.8,
+    NewsSource.CNBC.value: -0.9,
+    NewsSource.CNN.value: -3.8,
+    NewsSource.FOX.value: 4,
+    NewsSource.GUARDIAN.value: -2.4,
+    NewsSource.NYP.value: 1.8,
+    NewsSource.NEWSWEEK.value: 0.5,
+    NewsSource.PBS.value: -1.1,
+    NewsSource.REUTERS.value: 0,
+    NewsSource.WASHINGTON.value: 2.3,
 }
 
 # Since all of the sources are non-Asian, no specific sources are recommended for the asian region.
 LOCALE_BASED_RECS = {
-    'USA': [NewsSource.BBC, NewsSource.GUARDIAN, NewsSource.REUTERS],
-    'UK': [NewsSource.AP_NEWS, NewsSource.CNBC, NewsSource.CNN, NewsSource.FOX, 
-               NewsSource.NYP, NewsSource.NEWSWEEK, NewsSource.PBS, NewsSource.WASHINGTON],
+    'USA': [NewsSource.BBC.value, NewsSource.GUARDIAN.value, NewsSource.REUTERS.value],
+    'UK': [NewsSource.AP_NEWS.value, NewsSource.CNBC.value, NewsSource.CNN.value, NewsSource.FOX.value,
+               NewsSource.NYP.value, NewsSource.NEWSWEEK.value, NewsSource.PBS.value, NewsSource.WASHINGTON.value],
 }
 
 """
