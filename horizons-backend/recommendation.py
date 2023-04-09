@@ -189,8 +189,8 @@ def get_final_recommendations(user, read_article, possible_articles_arr):
         # rec_article_scores.append((rec_article, timestamp, (sentiment_diff_score * 1000) + local_diff_score, (opinion_diff_score) + political_bias_diff_score))
 
         # Method 4: Articles are first shortlisted based on the difference between the articles, and then the difference between the readers's opinions and that of the article's. This additionally includes the difference in the soures' political bias.(FINAL)
-        diff_between_articles = (sentiment_diff_score * 1000) + locale_diff_score + diff_in_political_bias_articles(read_article_source, rec_article_source)
-        diff_between_reader_and_rec_article = opinion_diff_score + political_bias_diff_score
+        diff_between_articles = (sentiment_diff_score * 1000) + diff_in_political_bias_articles(read_article_source, rec_article_source)
+        diff_between_reader_and_rec_article = opinion_diff_score + political_bias_diff_score + locale_diff_score
 
         rec_article_scores.append((rec_article, timestamp, diff_between_articles, diff_between_reader_and_rec_article))
 

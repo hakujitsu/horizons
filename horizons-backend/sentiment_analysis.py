@@ -65,7 +65,7 @@ def diff_in_sentiment(reading_article_response, rec_article_response):
 Computes how much a user's current sentiments on various entities would change after reading a given article. 
 
 Parameters:
-    - user_opinion: Dictionary with (entity_name, entity_type) as keys and their corresponding sentiment as values.
+    - user_opinion: Dictionary with (entity_name, entity_type) as keys and their (sentiment, number of articles read) as values.
     - article_responses: Contains the various entities and their respective sentiment scores. It is the output from analysing the article using analyze_entity_sentiment
 """
 def overall_diff_in_opinion(user_opinion, article_responses):
@@ -79,7 +79,6 @@ def overall_diff_in_opinion(user_opinion, article_responses):
 
         if (article_entity_type in relevant_entities and curr_entity_key in user_opinion):
             curr_sentiment = user_opinion[curr_entity_key][0]
-
             num_of_read_articles = user_opinion[curr_entity_key][1]
 
             new_sentiment = ((curr_sentiment * num_of_read_articles) + (article_entity.salience * article_entity.sentiment.score)) / float(num_of_read_articles + 1)
